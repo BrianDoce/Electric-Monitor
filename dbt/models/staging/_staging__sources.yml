@@ -1,0 +1,41 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: main
+    description: >
+      Raw tables loaded by the Python ingestion scripts (ingestion/*.py)
+      directly into DuckDB. Each is a full-refresh of a rolling lookback
+      window, not an append-only log.
+    tables:
+      - name: raw_eia_demand
+        description: Hourly electricity demand (MWh) for the CAISO balancing authority (CISO), from the EIA v2 API.
+        columns:
+          - name: period
+            description: Hour timestamp, format YYYY-MM-DDTHH, in the EIA source's local convention.
+          - name: respondent
+            description: Balancing authority code (CISO for California ISO).
+          - name: demand_mwh
+            description: Demand in megawatt-hours for the hour.
+
+      - name: raw_eia_fuel_mix
+        description: Hourly generation by fuel type (MWh) for CISO, from the EIA v2 API.
+        columns:
+          - name: period
+            description: Hour timestamp, format YYYY-MM-DDTHH.
+          - name: respondent
+            description: Balancing authority code (CISO for California ISO).
+          - name: fuel_type
+            description: EIA fuel type code (SUN, WND, WAT, NG, NUC, COL, OTH, ...).
+          - name: generation_mwh
+            description: Net generation in megawatt-hours for the hour.
+
+      - name: raw_weather
+        description: Hourly temperature for a Northern California reference point (default Sacramento), from Open-Meteo.
+        columns:
+          - name: ts_local
+            description: Local hourly timestamp (America/Los_Angeles).
+          - name: temperature_f
+            description: Temperature in degrees Fahrenheit.
+          - name: location
+            description: Human-readable name of the weather reference point.

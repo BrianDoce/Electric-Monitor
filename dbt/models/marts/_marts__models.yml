@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: mart_demand_weather_hourly
+    description: Hourly CAISO demand joined to Northern California temperature. Drives the load-vs-temperature chart.
+    columns:
+      - name: period_hour
+        tests:
+          - not_null
+          - unique
+      - name: demand_mwh
+        tests:
+          - not_null
+
+  - name: mart_fuel_mix_daily
+    description: Daily generation by fuel type with % share of total generation. Drives the renewable-mix chart.
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: fuel_type
+        tests:
+          - not_null
+
+  - name: mart_grid_daily_summary
+    description: One row per day combining demand, weather, and renewable share. Primary table for Power BI KPI cards and trend lines.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: peak_demand_mwh
+        tests:
+          - not_null

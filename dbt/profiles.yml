@@ -1,0 +1,7 @@
+electric_monitor:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "../warehouse/electric_monitor.duckdb"
+      threads: 4

@@ -1,0 +1,82 @@
+name: Electric-Monitor Pipeline
+
+on:
+  schedule:
+    - cron: "0 13 * * *"  # daily at 13:00 UTC (~6am Pacific)
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    env:
+      EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+      EIA_RESPONDENT: CISO
+      WEATHER_LAT: "38.5816"
+      WEATHER_LON: "-121.4944"
+      WEATHER_LOCATION_NAME: Sacramento_NorCal
+      LOOKBACK_DAYS: "30"
+      DBT_PROFILES_DIR: ${{ github.workspace }}/dbt
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run ingestion (demand, fuel mix, weather)
+        working-directory: ingestion
+        run: python run_all.py
+
+      - name: dbt run
+        working-directory: dbt
+        run: dbt run
+
+      - name: dbt test
+        working-directory: dbt
+        run: dbt test
+
+      - name: Export marts to Parquet for Power BI
+        working-directory: ingestion
+        run: python export_marts.py
+
+      - name: dbt docs generate
+        working-directory: dbt
+        run: dbt docs generate
+
+      - name: Upload warehouse + exports as a build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: electric-monitor-data
+          path: |
+            warehouse/electric_monitor.duckdb
+            data/marts/*.parquet
+          retention-days: 14
+
+      - name: Upload dbt docs for GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dbt/target
+
+  deploy-docs:
+    needs: run-pipeline
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy dbt docs to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
