@@ -8,7 +8,8 @@ with demand_daily as (
         date_trunc('day', period_hour) as date,
         max(demand_mwh) as peak_demand_mwh,
         avg(demand_mwh) as avg_demand_mwh,
-        min(demand_mwh) as min_demand_mwh
+        min(demand_mwh) as min_demand_mwh,
+        count(*) as hours_reported
 
     from {{ ref('stg_eia_demand') }}
     group by 1
@@ -44,6 +45,8 @@ select
     demand_daily.peak_demand_mwh,
     demand_daily.avg_demand_mwh,
     demand_daily.min_demand_mwh,
+    demand_daily.hours_reported,
+    demand_daily.hours_reported = 24 as is_complete_day,
     weather_daily.max_temp_f,
     weather_daily.avg_temp_f,
     round(renewable_share.renewable_pct, 2) as renewable_pct

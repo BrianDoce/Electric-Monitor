@@ -32,3 +32,9 @@ models:
       - name: peak_demand_mwh
         tests:
           - not_null
+      - name: hours_reported
+        description: Number of hourly demand rows for the day (Pacific time). Less than 24 at the edges of the rolling window.
+      - name: is_complete_day
+        description: True when all 24 hours are present. Filter on this for min/avg demand and renewable share, which are not comparable on partial days.
+        tests:
+          - not_null

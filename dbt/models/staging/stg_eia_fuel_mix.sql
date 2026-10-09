@@ -7,7 +7,9 @@ with source as (
 cleaned as (
 
     select
-        strptime(period, '%Y-%m-%dT%H') as period_hour,
+        -- EIA periods are UTC; convert to Pacific so they align with
+        -- stg_weather (Open-Meteo ts_local is America/Los_Angeles).
+        timezone('America/Los_Angeles', strptime(period, '%Y-%m-%dT%H') at time zone 'UTC') as period_hour,
         respondent,
         respondent_name,
         fuel_type,
