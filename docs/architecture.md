@@ -63,8 +63,15 @@ representative Northern California point; the location is a single
 `.env` change (`WEATHER_LAT` / `WEATHER_LON`) if you want to shift it or
 average multiple cities later.
 
-## Planned next layer: AI agent
+## AI agent layer
 
-See `agents/README.md` for the planned natural-language-to-SQL and
-anomaly-summary agent, intentionally built *after* the data foundation
-above is solid.
+Two agents sit on top of the marts (see `agents/README.md`):
+
+- `agents/sql_agent.py`: natural-language-to-SQL over the marts, read-only and
+  SELECT-only, with the executed SQL shown alongside each answer.
+- `agents/anomaly_agent.py`: deterministic z-score detection, then a
+  Claude-written analyst note only when something is flagged. It runs in CI
+  after the exports as a non-blocking step.
+
+`reports/generate_findings.py` also computes `docs/findings.md` from the marts,
+so reported figures are reproducible rather than hand-typed.

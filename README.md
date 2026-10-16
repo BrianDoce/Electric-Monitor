@@ -3,7 +3,7 @@
 A grid reliability & demand intelligence pipeline for Northern California,
 built to show end-to-end data engineering and analytics skills aimed at
 the utilities industry: free public APIs -> DuckDB -> dbt -> Power BI,
-with an AI agent layer planned on top.
+with an AI agent layer (natural-language SQL and anomaly briefings) on top.
 
 **Region**: CAISO (California Independent System Operator, EIA
 respondent code `CISO`) — the balancing authority covering Northern and
@@ -83,7 +83,8 @@ dbt/              dbt project: staging models, marts, tests, docs
 data/marts/       Parquet exports of the dbt marts, for Power BI (generated)
 docs/             Architecture notes, Power BI build guide, dashboard screenshots (docs/img)
 powerbi/          Power BI report (.pbix)
-agents/           Planned AI agent layer (not yet built)
+agents/           AI agents: NL-to-SQL assistant and anomaly briefing
+reports/          Generates docs/findings.md from the marts
 .github/workflows/  Daily pipeline: ingest -> dbt run/test -> export -> docs
 ```
 
@@ -149,7 +150,14 @@ joins or uniqueness tests; `is_complete_day` accounts for 23/24/25-hour days.
 
 - Raw ingestion is a **full refresh of a rolling 30-day window**, not an
   incremental/append pipeline. This is a deliberate simplification for a
-  portfolio-scale project; documented rather than hidden.
-- The AI agent layer (NL-to-SQL querying and anomaly-summary generation)
-  is the next milestone, intentionally built after the dbt foundation is
-  solid — see [`agents/README.md`](agents/README.md).
+  portfolio-scale project; documented rather than hidden. The consequence is
+  that findings describe one month of autumn data, not seasonal behavior.
+- Temperature comes from a **single point (Sacramento)**, not a
+  load-weighted average across California.
+- The AI agents are thin layers over the tested dbt marts: statistics decide
+  what is anomalous, and the model explains it. The anomaly agent runs in CI
+  as a non-blocking step; its notes and `docs/findings.md` are attached to the
+  build artifact and not committed back automatically.
+- Possible next steps: incremental loads for longer history, a load-weighted
+  weather average, and hourly fuel mix in the marts for a direct duck-curve
+  view.
