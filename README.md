@@ -26,6 +26,27 @@ Build steps and DAX measures are in [`docs/powerbi.md`](docs/powerbi.md).
 
 Live dbt docs and lineage: https://briandoce.github.io/Electric-Monitor/
 
+## Key findings
+
+From the 29 complete days of data (full write-up in [`docs/findings.md`](docs/findings.md)):
+
+- Temperature drives load: daily peak demand vs. daily high **r = 0.85**,
+  about **+560 MWh of peak demand per +1 F**.
+- The **duck curve** is visible: demand minus solar climbs about **18.5 GW in
+  8 hours** (11 am to 7 pm) as solar fades, and natural gas output roughly
+  doubles to cover it.
+- Renewable share moves against demand (**r = -0.80**): it fell from 65% to
+  45% during a mid-October heat spell, then recovered to 57% when it cooled.
+- The anomaly agent flagged Oct 15 as ~18% lower than temperature predicts
+  ([`docs/insights/`](docs/insights/)).
+
+## AI agents
+
+- **SQL agent**: `python agents/sql_agent.py "your question"` answers in plain
+  English and shows the SQL it ran (read-only, SELECT-only).
+- **Anomaly agent**: statistical detection plus a Claude-written analyst note,
+  run daily in CI. Details in [`agents/README.md`](agents/README.md).
+
 ## Why this project
 
 Utility analysts work with demand/load data, generation fuel mix, and
