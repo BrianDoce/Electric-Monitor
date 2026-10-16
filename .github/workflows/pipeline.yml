@@ -62,6 +62,9 @@ jobs:
           pip install -r agents/requirements.txt
           python agents/anomaly_agent.py
 
+      - name: Generate findings report from marts
+        run: python reports/generate_findings.py
+
       - name: dbt docs generate
         working-directory: dbt
         run: dbt docs generate
@@ -74,6 +77,7 @@ jobs:
             warehouse/electric_monitor.duckdb
             data/marts/*.parquet
             docs/insights/*.md
+            docs/findings.md
           retention-days: 14
 
       - name: Upload dbt docs for GitHub Pages

@@ -1,84 +1,81 @@
 # Findings: CAISO / Northern California, Sep 17 - Oct 15, 2026
 
-A snapshot of what the pipeline's marts show for the 29 complete days in the
-30-day window (partial edge days excluded via `is_complete_day`). Figures are
-reproducible from `data/marts/` or by asking the SQL agent
-(`python agents/sql_agent.py "..."`). Demand is EIA balancing-authority demand
-(which includes imports); generation figures are in-state generation only.
+*Generated 2026-10-16 by `reports/generate_findings.py` from the dbt marts. Do not edit by hand; re-run the script.*
 
-## 1. Temperature explains most of the swing in demand
+A snapshot of the 29 complete days in the rolling window (partial edge days excluded via `is_complete_day`). Demand is EIA balancing-authority demand (includes imports); generation figures are in-state generation only. You can reproduce any number with the SQL agent (`python agents/sql_agent.py "..."`).
 
-- Daily peak demand ranged from **27,082 MWh** (Oct 11, max 75 F) to
-  **46,213 MWh** (Oct 5, max 98.6 F).
-- Daily peak vs. daily max temperature: **r = 0.85**. A straight-line fit gives
-  roughly **+560 MWh of peak demand per +1 F** of daily max temperature.
-- Hourly demand vs. hourly temperature: **r = 0.84**, about **+350 MWh per +1 F**.
-- Mean daily peak was 35,387 MWh at a mean daily high of 87.7 F, which is warm
-  for October. A cool spell in mid-October cut weekly average peaks by about
-  a quarter (38.9 GW to 29.5 GW).
+## 1. Temperature and demand
 
-## 2. The daily load shape: early-morning trough, early-evening peak
+- Daily peak demand ranged from **27,082 MWh** (Oct 11, max 75.0 F) to **46,213 MWh** (Oct 5, max 98.6 F).
+- Daily peak vs. daily max temperature: **r = 0.85**, about **+564 MWh of peak demand per +1 F**.
+- Hourly demand vs. hourly temperature: **r = 0.84**, about **+354 MWh per +1 F**.
+- Mean daily peak 35,387 MWh at a mean daily high of 87.7 F.
 
-Average demand across the window bottoms out at **~23.7 GW at 5 am** and peaks
-at **~34.6 GW at 6 pm** Pacific, with a plateau of about 32-33 GW from 10 am to
-3 pm. The evening peak arrives as solar fades, not
-at the hottest hour of the afternoon (when solar is still at full output).
+## 2. Daily load shape
 
-## 3. The duck curve is visible in the data
+Average demand bottoms out at **23.7 GW at 5 am** and peaks at **34.7 GW at 6 pm** (Pacific time). The afternoon hottest hour is not the daily peak hour.
 
-Subtracting solar from demand hour by hour (average day, a simplified net load
-that ignores imports and storage):
+## 3. The duck curve
 
-| Hour (Pacific) | Demand (GW) | Solar (GW) | Demand minus solar (GW) |
+Subtracting solar from demand hour by hour on an average day (a simplified net load that ignores imports and storage):
+
+| Hour | Demand (GW) | Solar (GW) | Demand minus solar (GW) | Gas (GW) |
+|---|---|---|---|---|
+| 11 am | 32.3 | 17.1 | 15.2 | 5.7 |
+| 3 pm | 33.2 | 16.8 | 16.5 | 6.6 |
+| 6 pm | 34.7 | 7.0 | 27.7 | 10.1 |
+| 7 pm | 34.5 | 0.7 | 33.8 | 10.9 |
+
+Net load climbs about **18.6 GW in 8 hours** (11 am to 7 pm) as solar fades while demand stays high; gas output goes from 5.7 GW to 10.9 GW over the same hours.
+
+## 4. Weekdays vs. weekends
+
+Average hourly demand was **30.5 GW on weekdays vs. 28.6 GW on weekends** (6% lower). By temperature band:
+
+| Temperature | Weekday (GW) | Weekend (GW) | Gap (GW) |
 |---|---|---|---|
-| 11 am | 32.4 | 17.2 | **15.1** (daily minimum) |
-| 3 pm | 33.1 | 16.8 | 16.3 |
-| 6 pm | 34.6 | 7.1 | 27.5 |
-| 7 pm | 34.4 | 0.7 | **33.7** |
+| <=60 F | 24.5 | 24.3 | 0.1 |
+| 60-70 F | 28.9 | 27.6 | 1.3 |
+| 70-80 F | 32.3 | 30.2 | 2.1 |
+| 80-90 F | 35.6 | 33.9 | 1.7 |
+| >90 F | 38.2 | 38.0 | 0.2 |
 
-Net load climbs about **18.5 GW in 8 hours** (11 am to 7 pm) as solar fades
-while demand stays high. Natural gas fills the gap: its average output nearly
-doubles from ~5.6 GW at 11 am to ~10.8 GW at 7 pm. This is the classic
-evening-ramp problem that grid operators plan around.
+The weekend sample is 8 days, so treat gaps as suggestive.
 
-## 4. Weekends run lower, but the gap closes in the heat
+## 5. Renewable share and the fuel mix
 
-Average hourly demand was **30.4 GW on weekdays vs. 28.6 GW on weekends** (about
-6% lower). Comparing like temperatures, the weekday gap is ~0.2-2 GW below 90 F and
-essentially vanishes above 90 F (38.2 vs. 38.0 GW), consistent with cooling load
-dominating on hot days regardless of the calendar. The weekend sample is small
-(8 days), so treat this as suggestive.
+Renewable share vs. daily peak demand: **r = -0.80**. Weekly view (weeks with fewer than 7 complete days are partial):
 
-## 5. Renewable share fell as demand rose, then recovered
+| Week of | Days | Renewable share (%) | Avg daily peak (GW) | Avg daily high (F) |
+|---|---|---|---|---|
+| Sep 14 | 4 | 65.1 | 31.4 | 83.4 |
+| Sep 21 | 7 | 57.4 | 34.1 | 85.3 |
+| Sep 28 | 7 | 50.4 | 38.7 | 93.4 |
+| Oct 5 | 7 | 45.2 | 38.9 | 90.9 |
+| Oct 12 | 4 | 57.5 | 29.5 | 80.4 |
 
-- Weekly average renewable share: **65%** (mid-September) to **45%** (early-October
-  heat) and back to **57%** after the mid-October cool spell.
-- Renewable share vs. daily peak demand: **r = -0.80**. When demand surges,
-  the extra load is met mostly by gas, not by more renewables.
-- First 7 vs. last 7 complete days (share of generation): natural gas
-  **27.6% -> 38.7%**, solar **36.2% -> 27.3%**, nuclear **10.5% -> 7.2%**,
-  wind **13.2% -> 15.5%**. Shorter autumn days plausibly explain some of the
-  solar decline; the data doesn't say why nuclear dropped.
-- Over the whole window gas averaged **37.6%** of generation, solar **30.6%**,
-  wind **11.1%**, nuclear and hydro about **9.2%** each.
+Share of generation by fuel:
 
-## 6. What the anomaly agent flagged
+| Fuel | Whole window (%) | First 7 days (%) | Last 7 days (%) |
+|---|---|---|---|
+| Natural Gas | 38.2 | 27.6 | 38.7 |
+| Solar | 29.9 | 36.2 | 27.3 |
+| Wind | 11.1 | 13.2 | 15.5 |
+| Hydro | 9.3 | 9.6 | 8.9 |
+| Nuclear | 9.2 | 10.5 | 7.2 |
+| Geothermal | 3.6 | 3.9 | 3.9 |
+| Petroleum | 0.1 | 0.1 | 0.1 |
+| Coal | 0.0 | 0.0 | -0.0 |
+| Other | -1.3 | -1.1 | -1.6 |
 
-On Oct 15 peak demand was ~18% below what that day's 91.9 F high would predict
-(z = -2.5); see `docs/insights/2026-10-15.md`. The note proposes, without
-confirming, that solar suppressing measured demand or a brief heat spike could
-explain it.
+## 6. Latest anomaly agent note
+
+See [`docs/insights/2026-10-15.md`](insights/2026-10-15.md).
 
 ## Caveats
 
-- **Short window.** 30 days is one slice of autumn. It says nothing about
-  summer peaks or winter loads, and a handful of days drive several results.
-- **Correlation, not causation.** Temperature, day of week, solar output and
-  renewable share all move together; the fits above do not separate them.
-- **One weather point.** Temperature is Sacramento only, not a load-weighted
-  average of California.
-- **Net load is approximate.** It subtracts in-state solar from demand that
-  includes imports, and ignores storage.
-- **Negative "Other" generation.** The EIA "Other" category dips below zero on
-  several days (down to about -3%), likely net storage charging or accounting
-  offsets, so fuel shares are slightly distorted.
+- **Short window.** 29 complete days is a slice of one season; it says nothing about other seasons, and a handful of days can drive a result.
+- **Correlation, not causation.** Temperature, day of week, solar output and renewable share move together; these fits do not separate them.
+- **One weather point.** Temperature is Sacramento only, not a load-weighted average of California.
+- **Net load is approximate.** It subtracts in-state solar from demand that includes imports, and ignores storage.
+- **Negative "Other" generation.** EIA's "Other" category reaches -3.7% of daily generation on some days, likely storage charging or accounting offsets, which slightly distorts fuel shares.

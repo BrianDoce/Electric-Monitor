@@ -28,11 +28,11 @@ Live dbt docs and lineage: https://briandoce.github.io/Electric-Monitor/
 
 ## Key findings
 
-From the 29 complete days of data (full write-up in [`docs/findings.md`](docs/findings.md)):
+From the complete days in the window (full write-up in [`docs/findings.md`](docs/findings.md), generated from the marts by `reports/generate_findings.py`; figures below are from the Oct 16 snapshot):
 
 - Temperature drives load: daily peak demand vs. daily high **r = 0.85**,
-  about **+560 MWh of peak demand per +1 F**.
-- The **duck curve** is visible: demand minus solar climbs about **18.5 GW in
+  about **+564 MWh of peak demand per +1 F**.
+- The **duck curve** is visible: demand minus solar climbs about **18.6 GW in
   8 hours** (11 am to 7 pm) as solar fades, and natural gas output roughly
   doubles to cover it.
 - Renewable share moves against demand (**r = -0.80**): it fell from 65% to
