@@ -51,7 +51,7 @@ diagram and design rationale.
 | Orchestration | GitHub Actions (free tier) | Daily scheduled runs, CI for data quality |
 | BI | Power BI | Dashboards on top of exported Parquet marts |
 | Docs | dbt docs -> GitHub Pages | Public, checkable data lineage artifact |
-| AI agent (planned) | see [`agents/README.md`](agents/README.md) | NL-to-SQL + anomaly-summary agent, built after the data foundation |
+| AI agent | see [`agents/README.md`](agents/README.md) | NL-to-SQL agent (built, Claude API); anomaly-summary agent planned |
 
 ## Project layout
 
