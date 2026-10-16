@@ -21,14 +21,24 @@ printed after the answer so it can be checked. Guardrails: the warehouse is
 opened read-only with filesystem access disabled, only a single
 `SELECT`/`WITH` statement is accepted, and results are capped at 200 rows.
 
-## 2. Anomaly/insight agent (planned)
+## 2. Anomaly/insight agent (built): `anomaly_agent.py`
 
-Runs after each pipeline load (as a step in
-   `.github/workflows/pipeline.yml`), scans `mart_grid_daily_summary` for
-   demand spikes or renewable-share shifts beyond a threshold, and writes
-   a short plain-English summary (e.g. to a `docs/insights/` markdown log
-   or a GitHub issue/comment). This mirrors the actual job of a junior
-   utility analyst: flag the anomaly and explain it.
+```
+python agents/anomaly_agent.py                      # last 3 complete days, |z| >= 2
+python agents/anomaly_agent.py --days 7 --threshold 1.5
+```
+
+Detection is deterministic: for each recent complete day it computes
+leave-one-out z-scores for peak demand and renewable share, plus peak demand
+relative to what that day's max temperature predicts (a regression on the
+rest of the window). Only if something is flagged does Claude write a short
+analyst note from the figures provided, with causes labelled as likely rather
+than certain. No anomaly means no API call and no cost.
+
+The note is written to `docs/insights/<date>.md`, printed, and appended to
+the GitHub Actions job summary. In CI it runs as a non-blocking step after
+the exports (needs an `ANTHROPIC_API_KEY` repo secret) and the notes are
+included in the build artifact; CI does not commit them back.
 
 Both are intentionally thin wrappers around the already-tested, already-
 documented marts — the agent's value is explanation and interface, not

@@ -11,6 +11,7 @@ Run from the stated directory (scripts use relative paths and `DBT_PROFILES_DIR`
 - Transform (from `dbt/`): `dbt run`, `dbt test`, `dbt docs generate`
 - Export marts to `data/marts/*.parquet` (from `ingestion/`): `python export_marts.py`
 - SQL agent (from repo root; needs `ANTHROPIC_API_KEY`, `pip install -r agents/requirements.txt`): `python agents/sql_agent.py "question"`; offline checks with `--schema` / `--sql`
+- Anomaly agent (from repo root): `python agents/anomaly_agent.py [--days N --threshold Z]`; writes `docs/insights/<date>.md`, calls Claude only if something is flagged
 
 CI (`.github/workflows/pipeline.yml`) runs the same sequence daily and on push to `main`, then deploys dbt docs to GitHub Pages.
 
@@ -24,7 +25,7 @@ Copy `.env.example` to `.env`. Needs `EIA_API_KEY`; also `EIA_RESPONDENT` (CISO)
 - `dbt/models/staging/` — `stg_eia_demand`, `stg_eia_fuel_mix`, `stg_weather` (views)
 - `dbt/models/marts/` — `mart_demand_weather_hourly`, `mart_fuel_mix_daily`, `mart_grid_daily_summary`
 - `warehouse/` and `data/marts/` — generated outputs, not committed
-- `agents/` — `sql_agent.py` (natural-language-to-SQL over the marts; read-only, SELECT-only); anomaly agent still planned
+- `agents/` — `sql_agent.py` (natural-language-to-SQL over the marts; read-only, SELECT-only); `anomaly_agent.py` (z-score detection, then a Claude-written note; runs in CI as a non-blocking step)
 
 ## Conventions
 

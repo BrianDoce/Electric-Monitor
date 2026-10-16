@@ -51,6 +51,17 @@ jobs:
         working-directory: ingestion
         run: python export_marts.py
 
+      - name: Anomaly/insight agent (non-blocking)
+        # Statistics flag anomalies; Claude writes the note only if any are
+        # found. Failures here (missing key, API error) must not fail the
+        # data pipeline.
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          pip install -r agents/requirements.txt
+          python agents/anomaly_agent.py
+
       - name: dbt docs generate
         working-directory: dbt
         run: dbt docs generate
@@ -62,6 +73,7 @@ jobs:
           path: |
             warehouse/electric_monitor.duckdb
             data/marts/*.parquet
+            docs/insights/*.md
           retention-days: 14
 
       - name: Upload dbt docs for GitHub Pages
