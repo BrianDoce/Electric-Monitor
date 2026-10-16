@@ -7,8 +7,9 @@ with source as (
 cleaned as (
 
     select
-        -- EIA periods are UTC; convert to Pacific so they align with
-        -- stg_weather (Open-Meteo ts_local is America/Los_Angeles).
+        -- EIA periods are UTC. Keep the UTC hour as the unambiguous key and
+        -- derive Pacific local time for display and daily grouping.
+        strptime(period, '%Y-%m-%dT%H') as period_hour_utc,
         timezone('America/Los_Angeles', strptime(period, '%Y-%m-%dT%H') at time zone 'UTC') as period_hour,
         respondent,
         respondent_name,

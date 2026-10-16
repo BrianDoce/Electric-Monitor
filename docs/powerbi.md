@@ -25,7 +25,8 @@ Use a relative-path parameter (**Transform data > Manage Parameters**, `MartsFol
 | Column | Type | Note |
 |---|---|---|
 | `date` | Date | Present in all three tables; the join key |
-| `period_hour` | Date/Time | Hourly grain, no time zone (see caveats) |
+| `period_hour` | Date/Time | Pacific local hour, for display (see caveats) |
+| `period_hour_utc` | Date/Time | UTC hour; unambiguous key. Hide it in the report |
 | `*_pct`, `pct_of_daily_generation` | Decimal | Already on a **0-100** scale, not 0-1. Format as number, not percentage, or divide by 100 first |
 | `is_renewable`, `is_weekend` | True/False | Good as slicers |
 | `fuel_type` | Text | EIA code (SUN, WND...); use `fuel_type_name` for display |
@@ -119,7 +120,7 @@ Use one consistent color per fuel type, and set the theme to match your dbt docs
 ## 5. Data caveats to be aware of
 
 - **Partial days at the window edges.** The rolling 30-day pull starts and ends mid-day, so those days have fewer than 24 hours. `mart_grid_daily_summary` has `hours_reported` and `is_complete_day`; add a page-level filter `is_complete_day = True` on Pages 1 and 3 so min/avg demand and renewable share are comparable.
-- **Time zone.** EIA periods are UTC; staging converts them to Pacific so they align with the weather data, and `period_hour` / `hour_of_day` are Pacific local time. Around the November DST change the repeated 1 am hour can break the `unique` test on `period_hour`; handle that when it comes up.
+- **Time zone.** `period_hour` and `hour_of_day` are Pacific local time. Joins and the primary key use `period_hour_utc`, so the repeated 1 am hour at the November DST change doesn't break anything; that local day simply has 25 hours, and `is_complete_day` accounts for 23/24/25-hour days.
 - **Small sample.** 30 days is enough for a demo but not for seasonality. Say so in the dashboard footer.
 
 ## 6. Save

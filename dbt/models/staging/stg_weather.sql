@@ -7,7 +7,8 @@ with source as (
 cleaned as (
 
     select
-        strptime(ts_local, '%Y-%m-%dT%H:%M') as period_hour,
+        strptime(ts_utc, '%Y-%m-%dT%H:%M') as period_hour_utc,
+        timezone('America/Los_Angeles', strptime(ts_utc, '%Y-%m-%dT%H:%M') at time zone 'UTC') as period_hour,
         location,
         latitude,
         longitude,

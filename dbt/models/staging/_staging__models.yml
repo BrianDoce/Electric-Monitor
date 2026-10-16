@@ -4,8 +4,12 @@ models:
   - name: stg_eia_demand
     description: Cleaned, typed hourly demand for CAISO (CISO).
     columns:
+      - name: period_hour_utc
+        description: Hourly timestamp in UTC.
+        tests:
+          - not_null
       - name: period_hour
-        description: Hourly timestamp.
+        description: Hourly timestamp in Pacific local time.
         tests:
           - not_null
       - name: demand_mwh
@@ -16,6 +20,9 @@ models:
   - name: stg_eia_fuel_mix
     description: Cleaned, typed hourly generation by fuel type for CAISO (CISO).
     columns:
+      - name: period_hour_utc
+        tests:
+          - not_null
       - name: period_hour
         tests:
           - not_null
@@ -29,6 +36,9 @@ models:
   - name: stg_weather
     description: Cleaned, typed hourly temperature for the Northern California reference point.
     columns:
+      - name: period_hour_utc
+        tests:
+          - not_null
       - name: period_hour
         tests:
           - not_null

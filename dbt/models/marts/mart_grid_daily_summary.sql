@@ -46,7 +46,12 @@ select
     demand_daily.avg_demand_mwh,
     demand_daily.min_demand_mwh,
     demand_daily.hours_reported,
-    demand_daily.hours_reported = 24 as is_complete_day,
+    -- Expected hours is 23/24/25 on DST days, so compare against the
+    -- actual length of the local day instead of a hard-coded 24.
+    demand_daily.hours_reported = (
+        epoch(timezone('America/Los_Angeles', cast(demand_daily.date + interval 1 day as timestamp)))
+        - epoch(timezone('America/Los_Angeles', cast(demand_daily.date as timestamp)))
+    ) / 3600 as is_complete_day,
     weather_daily.max_temp_f,
     weather_daily.avg_temp_f,
     round(renewable_share.renewable_pct, 2) as renewable_pct

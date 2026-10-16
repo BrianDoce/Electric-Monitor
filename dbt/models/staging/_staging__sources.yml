@@ -12,7 +12,7 @@ sources:
         description: Hourly electricity demand (MWh) for the CAISO balancing authority (CISO), from the EIA v2 API.
         columns:
           - name: period
-            description: Hour timestamp, format YYYY-MM-DDTHH, in the EIA source's local convention.
+            description: Hour timestamp, format YYYY-MM-DDTHH, in UTC.
           - name: respondent
             description: Balancing authority code (CISO for California ISO).
           - name: demand_mwh
@@ -33,8 +33,8 @@ sources:
       - name: raw_weather
         description: Hourly temperature for a Northern California reference point (default Sacramento), from Open-Meteo.
         columns:
-          - name: ts_local
-            description: Local hourly timestamp (America/Los_Angeles).
+          - name: ts_utc
+            description: Hourly timestamp in UTC.
           - name: temperature_f
             description: Temperature in degrees Fahrenheit.
           - name: location

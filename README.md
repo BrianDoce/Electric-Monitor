@@ -10,6 +10,22 @@ respondent code `CISO`) — the balancing authority covering Northern and
 Central California. Weather is sampled at Sacramento as a representative
 Northern California point.
 
+## Dashboard
+
+Power BI report built on the Parquet marts (`powerbi/Electricity-Monitor.pbix`).
+Build steps and DAX measures are in [`docs/powerbi.md`](docs/powerbi.md).
+
+**Grid overview** — KPI cards, demand trend, and renewable share
+![Grid overview](docs/img/Grid-Overview.png)
+
+**Demand vs. weather** — hourly temperature/demand relationship (correlation 0.84)
+![Demand vs. weather](docs/img/Demand-vs-Weather.png)
+
+**Fuel mix** — daily generation share by fuel type
+![Fuel mix](docs/img/Fuel-Mix.png)
+
+Live dbt docs and lineage: https://briandoce.github.io/Electric-Monitor/
+
 ## Why this project
 
 Utility analysts work with demand/load data, generation fuel mix, and
@@ -44,7 +60,8 @@ ingestion/        Python scripts: pull from EIA + Open-Meteo into DuckDB
 warehouse/        electric_monitor.duckdb (generated, gitignored)
 dbt/              dbt project: staging models, marts, tests, docs
 data/marts/       Parquet exports of the dbt marts, for Power BI (generated)
-docs/             Architecture notes
+docs/             Architecture notes, Power BI build guide, dashboard screenshots (docs/img)
+powerbi/          Power BI report (.pbix)
 agents/           Planned AI agent layer (not yet built)
 .github/workflows/  Daily pipeline: ingest -> dbt run/test -> export -> docs
 ```
@@ -74,8 +91,8 @@ agents/           Planned AI agent layer (not yet built)
    python export_marts.py
    ```
 7. In Power BI Desktop: **Get Data > Parquet**, point at the files in
-   `data/marts/`. Start from `mart_grid_daily_summary.parquet` for
-   top-level KPI cards and trend lines.
+   `data/marts/`, or open `powerbi/Electricity-Monitor.pbix` and refresh.
+   Follow [`docs/powerbi.md`](docs/powerbi.md) for the model and measures.
 
 The GitHub Actions workflow (`.github/workflows/pipeline.yml`) runs this
 same sequence daily and publishes the dbt docs site via GitHub Pages. To
@@ -87,14 +104,25 @@ enable GitHub Pages (Settings -> Pages -> Source: GitHub Actions).
 - `stg_eia_demand`, `stg_eia_fuel_mix`, `stg_weather` — cleaned, typed
   staging views.
 - `mart_demand_weather_hourly` — hourly demand joined to temperature, with
-  day-of-week/weekend flags, for load-forecasting-style analysis.
+  day-of-week/weekend flags, for load-forecasting-style analysis. Keyed on
+  `period_hour_utc`; `period_hour` / `hour_of_day` are Pacific local time.
 - `mart_fuel_mix_daily` — daily generation by fuel type with % share of
   total generation and a renewable/non-renewable flag.
 - `mart_grid_daily_summary` — one row per day: peak/avg/min demand, max/avg
-  temperature, renewable %. The primary table for dashboard KPIs.
+  temperature, renewable %. The primary table for dashboard KPIs. Includes
+  `hours_reported` / `is_complete_day` so partial days at the edges of the
+  rolling window can be filtered out.
 
-Every staging and mart model has `not_null`/`unique` dbt tests, so a bad
-API pull fails the pipeline instead of silently reaching the dashboard.
+Every staging and mart model has `not_null`/`unique` dbt tests, plus
+singular tests in `dbt/tests/` (demand and temperature ranges, fuel shares
+summing to 100, renewable % bounds, no gaps in the hourly series, and a
+72-hour freshness check), so a bad API pull fails the pipeline instead of
+silently reaching the dashboard.
+
+**Time zones:** EIA and Open-Meteo are both ingested in UTC, joined on
+`period_hour_utc`, and converted to Pacific for display. Keying on UTC
+keeps the repeated hour at the fall daylight-saving change from breaking
+joins or uniqueness tests; `is_complete_day` accounts for 23/24/25-hour days.
 
 ## Notes on scope
 

@@ -38,7 +38,7 @@ def run() -> None:
         "temperature_unit": "fahrenheit",
         "past_days": past_days,
         "forecast_days": 1,
-        "timezone": "America/Los_Angeles",
+        "timezone": "GMT",  # UTC avoids ambiguous DST hours; dbt converts to Pacific
     }
     resp = requests.get(OPEN_METEO_URL, params=params, timeout=60)
     resp.raise_for_status()
@@ -52,7 +52,7 @@ def run() -> None:
         print("[weather] No rows returned from Open-Meteo.")
         return
 
-    df = pd.DataFrame({"ts_local": times, "temperature_f": temps})
+    df = pd.DataFrame({"ts_utc": times, "temperature_f": temps})
     df["location"] = LOCATION_NAME
     df["latitude"] = LAT
     df["longitude"] = LON

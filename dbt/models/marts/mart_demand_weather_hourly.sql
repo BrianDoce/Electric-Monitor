@@ -14,6 +14,7 @@ weather as (
 )
 
 select
+    demand.period_hour_utc,
     demand.period_hour,
     demand.respondent,
     demand.demand_mwh,
@@ -28,4 +29,4 @@ select
 
 from demand
 left join weather
-    on demand.period_hour = weather.period_hour
+    on demand.period_hour_utc = weather.period_hour_utc

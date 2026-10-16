@@ -4,10 +4,15 @@ models:
   - name: mart_demand_weather_hourly
     description: Hourly CAISO demand joined to Northern California temperature. Drives the load-vs-temperature chart.
     columns:
-      - name: period_hour
+      - name: period_hour_utc
+        description: Unambiguous UTC hour. Primary key (Pacific local time repeats an hour at the fall DST change).
         tests:
           - not_null
           - unique
+      - name: period_hour
+        description: Pacific local hour, for display and hour_of_day.
+        tests:
+          - not_null
       - name: demand_mwh
         tests:
           - not_null
@@ -33,8 +38,8 @@ models:
         tests:
           - not_null
       - name: hours_reported
-        description: Number of hourly demand rows for the day (Pacific time). Less than 24 at the edges of the rolling window.
+        description: Number of hourly demand rows for the day (Pacific time). Fewer than the day's length at the edges of the rolling window.
       - name: is_complete_day
-        description: True when all 24 hours are present. Filter on this for min/avg demand and renewable share, which are not comparable on partial days.
+        description: True when every hour of the local day is present (23/24/25 on DST days). Filter on this for min/avg demand and renewable share, which are not comparable on partial days.
         tests:
           - not_null
