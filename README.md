@@ -36,7 +36,7 @@ From the 29 complete days of data (full write-up in [`docs/findings.md`](docs/fi
   8 hours** (11 am to 7 pm) as solar fades, and natural gas output roughly
   doubles to cover it.
 - Renewable share moves against demand (**r = -0.80**): it fell from 65% to
-  45% during a mid-October heat spell, then recovered to 57% when it cooled.
+  45% during an early-October heat spell, then recovered to 57% when it cooled.
 - The anomaly agent flagged Oct 15 as ~18% lower than temperature predicts
   ([`docs/insights/`](docs/insights/)).
 

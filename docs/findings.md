@@ -37,22 +37,22 @@ that ignores imports and storage):
 | 7 pm | 34.4 | 0.7 | **33.7** |
 
 Net load climbs about **18.5 GW in 8 hours** (11 am to 7 pm) as solar fades
-while demand stays high. Natural gas fills the gap: its average output more than
+while demand stays high. Natural gas fills the gap: its average output nearly
 doubles from ~5.6 GW at 11 am to ~10.8 GW at 7 pm. This is the classic
 evening-ramp problem that grid operators plan around.
 
 ## 4. Weekends run lower, but the gap closes in the heat
 
 Average hourly demand was **30.4 GW on weekdays vs. 28.6 GW on weekends** (about
-6% lower). Comparing like temperatures, the weekday gap is ~1-2 GW below 90 F and
+6% lower). Comparing like temperatures, the weekday gap is ~0.2-2 GW below 90 F and
 essentially vanishes above 90 F (38.2 vs. 38.0 GW), consistent with cooling load
 dominating on hot days regardless of the calendar. The weekend sample is small
 (8 days), so treat this as suggestive.
 
 ## 5. Renewable share fell as demand rose, then recovered
 
-- Weekly average renewable share: **65%** (week of Sep 17) to **45%** (mid-Oct
-  heat) and back to **57%** after the cool spell.
+- Weekly average renewable share: **65%** (mid-September) to **45%** (early-October
+  heat) and back to **57%** after the mid-October cool spell.
 - Renewable share vs. daily peak demand: **r = -0.80**. When demand surges,
   the extra load is met mostly by gas, not by more renewables.
 - First 7 vs. last 7 complete days (share of generation): natural gas
